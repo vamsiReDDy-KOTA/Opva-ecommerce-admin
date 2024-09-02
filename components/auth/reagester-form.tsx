@@ -1,7 +1,6 @@
 "use client"
 
 import { CardWrapper } from "./card-wrapperr"
-import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
@@ -12,41 +11,38 @@ import {
     FormMessage,
     FormLabel
 } from "../ui/form"
-import { LoginSchema } from "@/schemas"
+import { SignUpSchema } from "@/schemas"
 import * as z from "zod"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { FormError } from "../form-error"
 import { FormSuccess } from "../form-success"
-import { login } from "@/actions/login"
+import { Signup } from "@/actions/signup"
 import { useState, useTransition } from "react"
 
 
-
-
-export const LoginForm = () => {
-    const router = useRouter();
+export const SignUpForm = () => {
     const [error, setError] = useState<string | undefined>("");
     const [success, setSuccess] = useState<string | undefined>("");
     const [isPending, startTransition] = useTransition()
-    const form = useForm<z.infer<typeof LoginSchema>>({
-        resolver: zodResolver(LoginSchema),
+    const form = useForm<z.infer<typeof SignUpSchema>>({
+        resolver: zodResolver(SignUpSchema),
         defaultValues: {
             email: "",
             password: "",
+            name: "",
         }
     })
-    const onSubmit = (values: z.infer<typeof LoginSchema>) => {
+
+    const onSubmit = (values: z.infer<typeof SignUpSchema>) => {
         setError("");
         setSuccess("");
-        startTransition(async () => {
-            const result = await login(values);
-            if (result.success) {
-                router.push("/settings"); // Redirect to a different page
-            } else {
-                setError(result.error);
-            }
-        });
+        startTransition(() => {
+            Signup(values).then((data) => {
+                setError(data.error)
+                setSuccess(data.success)
+            })
+        })
 
     }
 
@@ -54,9 +50,9 @@ export const LoginForm = () => {
     return (
 
         <CardWrapper
-            headerLabel="Welcome back"
+            headerLabel="Create an account"
             backButtonHref="/auth/signup"
-            backButtonLabel="Don't have an account?"
+            backButtonLabel="Already have an account?"
             showSocial
         >
             <Form {...form}>
@@ -65,6 +61,24 @@ export const LoginForm = () => {
                     className="space-y-6"
                 >
                     <div className="space-y-4" >
+                        <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Name</FormLabel>
+                                    <FormControl>
+                                        <Input
+                                            {...field}
+                                            placeholder="jone"
+                                            type="test"
+                                        />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+
+                        />
                         <FormField
                             control={form.control}
                             name="email"
@@ -101,6 +115,7 @@ export const LoginForm = () => {
                             )}
 
                         />
+
                     </div>
                     <FormError message={error} />
                     <FormSuccess message={success} />
@@ -108,7 +123,7 @@ export const LoginForm = () => {
                         type="submit"
                         className="w-full"
                     >
-                        Login
+                        Signup
                     </Button>
                 </form>
             </Form>

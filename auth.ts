@@ -10,6 +10,10 @@ import bcrypt from 'bcryptjs';
 import { LoginSchema } from "./schemas";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+    pages: {
+        signIn: "/auth/login",
+        error: "/auth/error",
+    },
     adapter: PrismaAdapter(prismadb),
     providers: [
         Github({

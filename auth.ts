@@ -26,6 +26,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }),
         Credentials({
             authorize: async (credentials) => {
+                console.log("credentials", credentials);
                 const validatedFields = LoginSchema.safeParse(credentials);
                 if (validatedFields.success) {
                     const { email, password } = validatedFields.data;
@@ -33,6 +34,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                     if (!user || !user.password) return null;
 
                     const passwordMatch = await bcrypt.compare(password, user.password);
+                    console.log(passwordMatch, "=== password")
                     if (passwordMatch) return user;
                 }
                 return null;
@@ -43,6 +45,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         strategy: "jwt",
     },
     callbacks: {
+
+        // async signIn({ user, account }) {
+        //     console.log("Signing in", user, account);
+        //     if (account?.provider !== "credentials") return true;
+
+        //     const existingUser = await getUserById(user?.id)
+
+        //     if (!existingUser?.emailVerified) return false
+
+        //     // Todo: Add 2fa check
+
+        //     return true;
+        // },
+
+        async signIn({ user, account }) {
+            console.log("Signing in", user, account);
+            if (account?.provider !== "credentials") return true;
+
+            // const existingUser = await getUserById(user?.id);
+            // if (!existingUser?.emailVerified) return false; // This could cause AccessDenied
+
+            // Additional checks can be added here
+            return true;
+        },
         async jwt({ token, user }) {
             if (!token.sub) return token;
             const existingUser = await getUserById(token.sub);

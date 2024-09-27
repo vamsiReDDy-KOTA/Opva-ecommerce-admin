@@ -39,3 +39,33 @@ model Account {
 
   @@unique([provider, providerAccountId])
 }
+
+model VerificationToken {
+  id      String   @id @default(cuid())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
+
+model Store {
+  id         String      @id @default(cuid())
+  name       String
+  userId     String
+  billboards Billboard[] @relation("StoreToBillboard")
+  created    DateTime    @default(now())
+  updated    DateTime    @updatedAt
+}
+
+model Billboard {
+  id        String   @id @default(uuid())
+  storeId   String
+  store     Store    @relation("StoreToBillboard", fields: [storeId], references: [id])
+  label     String
+  imageUrl  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([storeId])
+}

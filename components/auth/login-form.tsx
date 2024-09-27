@@ -40,18 +40,19 @@ export const LoginForm = () => {
         }
     })
     const onSubmit = (values: z.infer<typeof LoginSchema>) => {
-        setError("");
-        setSuccess("");
+        setError(""); // Clear any existing error messages
+        setSuccess(""); // Clear any existing success messages
+
         startTransition(async () => {
             const result = await login(values);
-            if (result.success) {
+            if (result.success === true) {
+                // setSuccess(result?.success)
                 router.push("/settings"); // Redirect to a different page
             } else {
-                setError(result.error);
+                setError(result.error); // Set error message if login fails
             }
         });
-
-    }
+    };
 
 
     return (

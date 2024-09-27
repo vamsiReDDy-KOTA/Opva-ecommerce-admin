@@ -6,6 +6,8 @@ import { SignUpSchema } from "@/schemas";
 import prismadb from "@/lib/prismadb";
 import { error } from "console";
 import { getUserByEmail } from "@/data/user";
+import { generateVerificationToken } from "@/data/tokens";
+import { sendVerificationEmail } from "@/data/mail";
 
 export const Signup = async (values: z.infer<typeof SignUpSchema>) => {
     const validatedFields = SignUpSchema.safeParse(values);
@@ -32,8 +34,13 @@ export const Signup = async (values: z.infer<typeof SignUpSchema>) => {
         }
     })
 
+
+
     // TODO: Send verification token email
 
+    const verificaionToken: any = await generateVerificationToken(email)
 
-    return { success: "User Created!" }
+    await sendVerificationEmail(verificaionToken?.email, verificaionToken?.token)
+
+    return { success: "Confirmation email sent!" }
 }

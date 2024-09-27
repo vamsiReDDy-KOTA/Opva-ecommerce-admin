@@ -1,4 +1,8 @@
+import { sendVerificationEmail } from "@/data/mail";
+import { generateVerificationToken } from "@/data/tokens";
+import { getUserByEmail } from "@/data/user";
 import { LoginSchema } from "@/schemas";
+import { error } from "console";
 import { signIn } from "next-auth/react"; // Correct import for signIn
 import { z } from "zod";
 
@@ -10,6 +14,27 @@ export const login = async (values: z.infer<typeof LoginSchema>) => {
     }
 
     const { email, password } = validatedFields.data;
+
+    console.log("password", password)
+
+    const existingUser = await getUserByEmail(email)
+    if (!existingUser || !existingUser.email || !existingUser.password) {
+        return { error: "Email dose not exist!" }
+    }
+
+    // if (!existingUser.emailVerified) {
+    //     console.log("hello===================")
+    //     const verificaionToken: any = await generateVerificationToken(existingUser.email)
+
+    //     console.log("verificaionToken: ", verificaionToken)
+    //     await sendVerificationEmail(
+    //         verificaionToken.email,
+    //         verificaionToken.token
+    //     )
+    //     return { success: "Confirmation email sent!" }
+    // }
+
+
 
     try {
         const result = await signIn("credentials", {

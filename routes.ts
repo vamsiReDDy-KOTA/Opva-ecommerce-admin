@@ -1,5 +1,6 @@
 export const publicRoute = [
     "/",
+    "/api/:storeId/billboards"
     // "/auth/register"
     // "/auth/error"
 ]

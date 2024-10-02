@@ -7,14 +7,19 @@ import {
 } from "./routes";
 
 export default async function middleware(req: Request) {
+
   const url = new URL(req.url);
   const isLoggedIn = await auth(); // Ensure this checks if the user is logged in correctly
-  console.log("isLoggedIn", isLoggedIn);
-  console.log("ROUTE:", url.pathname);
 
   const isApiAuthRoute = url.pathname.startsWith(apiAuthPrefix);
-  const isPublicRoute = publicRoute.includes(url.pathname);
   const isAuthRoute = authRoutes.includes(url.pathname);
+
+  const isPublicRoute = publicRoute.some(route => url.pathname.startsWith(route));
+
+  if (isPublicRoute) {
+    return null;  // Allow access to public routes
+  }
+
 
   if (isApiAuthRoute) {
     return null;
@@ -32,10 +37,13 @@ export default async function middleware(req: Request) {
     return Response.redirect(new URL('/auth/login', url));
   }
 
+
+
   return null;
 }
 
 export const config = {
+
   matcher: [
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
     '/(api|trpc)(.*)',
